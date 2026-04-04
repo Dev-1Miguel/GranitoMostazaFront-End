@@ -124,6 +124,11 @@
   background: linear-gradient(180deg, rgba(255, 243, 238, 0.95) 0%, rgba(255, 255, 255, 0.95) 100%);
 }
 
+.admin-nav__item--disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 .admin-sidebar__card {
   margin-top: auto;
   padding: 18px;

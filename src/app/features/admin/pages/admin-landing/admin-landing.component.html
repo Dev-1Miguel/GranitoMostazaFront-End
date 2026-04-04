@@ -13,15 +13,25 @@
       </div>
 
       <nav class="admin-nav" aria-label="Administracion">
-        <a
-          *ngFor="let item of navItems"
-          class="admin-nav__item"
-          [class.admin-nav__item--active]="item.active"
-          href="#"
-        >
-          <i [class]="item.icon"></i>
-          <span>{{ item.label }}</span>
-        </a>
+        <ng-container *ngFor="let item of navItems">
+          <a
+            *ngIf="item.route; else disabledItem"
+            class="admin-nav__item"
+            [routerLink]="item.route"
+            routerLinkActive="admin-nav__item--active"
+            [routerLinkActiveOptions]="{ exact: item.route === '/admin' }"
+          >
+            <i [class]="item.icon"></i>
+            <span>{{ item.label }}</span>
+          </a>
+
+          <ng-template #disabledItem>
+            <span class="admin-nav__item admin-nav__item--disabled">
+              <i [class]="item.icon"></i>
+              <span>{{ item.label }}</span>
+            </span>
+          </ng-template>
+        </ng-container>
       </nav>
 
       <div class="admin-sidebar__card">

@@ -14,6 +14,13 @@ export const routes: Routes = [
             )
     },
     {
+        path: 'admin/pedidos',
+        loadComponent: () =>
+            import('./features/admin/pages/orders-landing/orders-landing.component').then(
+                (m) => m.OrdersLandingComponent
+            )
+    },
+    {
         path: 'menu',
         loadComponent: () =>
             import('./features/menu/pages/menu-landing/menu-landing.component').then(

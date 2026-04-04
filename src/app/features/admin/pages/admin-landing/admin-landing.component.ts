@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import { MainSectionAdminComponent } from '../../sections/main-section-admin/main-section-admin';
 import { SecondarySectionAdminComponent } from '../../sections/secondary-section-admin/secondary-section-admin';
 import { ThirdSectionAdminComponent } from '../../sections/third-section-admin/third-section-admin';
@@ -10,7 +10,7 @@ import { FloatingHomeButtonComponent } from '../../../../shared/components/float
 interface AdminNavItem {
   label: string;
   icon: string;
-  active?: boolean;
+  route?: string;
 }
 
 @Component({
@@ -19,6 +19,7 @@ interface AdminNavItem {
   imports: [
     CommonModule,
     RouterLink,
+    RouterLinkActive,
     MainSectionAdminComponent,
     SecondarySectionAdminComponent,
     ThirdSectionAdminComponent,
@@ -30,8 +31,8 @@ interface AdminNavItem {
 })
 export class AdminLandingComponent {
   readonly navItems: AdminNavItem[] = [
-    { label: 'Dashboard', icon: 'pi pi-th-large', active: true },
-    { label: 'Pedidos', icon: 'pi pi-shopping-bag' },
+    { label: 'Dashboard', icon: 'pi pi-th-large', route: '/admin' },
+    { label: 'Pedidos', icon: 'pi pi-shopping-bag', route: '/admin/pedidos' },
     { label: 'Productos', icon: 'pi pi-box' },
     { label: 'Reportes', icon: 'pi pi-chart-line' }
   ];
