@@ -1,11 +1,11 @@
-<div
+﻿<div
   class="carousel-container relative mx-auto w-full max-w-[90rem] overflow-hidden rounded-[2rem] bg-neutral-950 shadow-2xl"
   (touchstart)="onTouchStart($event)"
   (touchmove)="onTouchMove($event)"
   (touchend)="onTouchEnd()"
   (touchcancel)="onTouchEnd()"
   aria-roledescription="carousel"
-  aria-label="Promociones destacadas del menu"
+  aria-label="Promociones destacadas del menú"
 >
   <div
     class="carousel-track flex transition-transform duration-[1200ms]"
@@ -82,7 +82,6 @@
     </div>
   </div>
 
-  <!-- Navigation Controls -->
   @if (items().length > 1) {
     <div class="controls-wrapper">
       <button

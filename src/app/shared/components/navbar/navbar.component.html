@@ -1,6 +1,12 @@
-<header class="navbar">
+﻿<header class="navbar">
   <nav class="navbar__inner">
-    <a href="#home" class="navbar__logo" aria-label="Granito de Mostaza">
+    <a
+      [routerLink]="['/']"
+      fragment="home"
+      class="navbar__logo"
+      aria-label="Granito de Mostaza"
+      (click)="closeMenu()"
+    >
       <img
         src="/logoMinimalista.png"
         alt="Granito de Mostaza"
@@ -8,9 +14,9 @@
       />
     </a>
     <ul class="navbar__menu" [class.navbar__menu--open]="isMenuOpen">
-      <li><a href="#home" (click)="closeMenu()">Inicio</a></li>
-      <li><a [routerLink]="['/menu']" (click)="closeMenu()">Menu</a></li>
-      <li><a href="#ubicacion" (click)="closeMenu()">Ubicación</a></li>
+      <li><a [routerLink]="['/']" fragment="home" (click)="closeMenu()">Inicio</a></li>
+      <li><a [routerLink]="['/menu']" (click)="closeMenu()">Menú</a></li>
+      <li><a [routerLink]="['/']" fragment="ubicacion" (click)="closeMenu()">Ubicación</a></li>
     </ul>
 
     <div class="navbar__actions">
@@ -24,7 +30,7 @@
 
       <a routerLink="/login-landing" class="navbar__cart" style="text-decoration: none; cursor: pointer;">
         <i class="pi pi-user navbar__cart-icon" aria-hidden="true"></i>
-        <span>Iniciar Sesión</span>
+        <span>Iniciar sesión</span>
       </a>
 
       <button (click)="toggleMenu()" class="navbar__toggle" type="button" [attr.aria-expanded]="isMenuOpen">

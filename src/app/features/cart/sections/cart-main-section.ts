@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
-import { RouterModule } from "@angular/router";
+import { Router, RouterModule } from "@angular/router";
 import { CartService } from "../services/cart.service";
 
 @Component({
@@ -14,6 +14,7 @@ import { CartService } from "../services/cart.service";
 })
 export class CartMainSection {
     private cartService = inject(CartService);
+    private router = inject(Router);
 
     cartItems = this.cartService.items;
     subtotal = this.cartService.subtotal;
@@ -31,5 +32,15 @@ export class CartMainSection {
 
     closeCart(): void {
         this.cartService.closeCart();
+    }
+
+    continueShopping(): void {
+        this.closeCart();
+        void this.router.navigate(['/menu']);
+    }
+
+    continueToCheckout(): void {
+        this.closeCart();
+        void this.router.navigate(['/login-landing']);
     }
 }
