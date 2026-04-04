@@ -1,0 +1,25 @@
+<section class="insights-grid">
+  <article class="insights-card insights-card--wide">
+    <p class="insights-card__eyebrow">Resumen del dia</p>
+    <h2>Lo que mas se esta moviendo hoy.</h2>
+
+    <div class="insights-list">
+      <div class="insights-list__item" *ngFor="let insight of insights">
+        <div>
+          <h3>{{ insight.name }}</h3>
+          <p>{{ insight.note }}</p>
+        </div>
+        <strong>{{ insight.metric }}</strong>
+      </div>
+    </div>
+  </article>
+
+  <article class="insights-card">
+    <p class="insights-card__eyebrow">Siguiente paso</p>
+    <h2>Lo minimo que conviene hacer antes del siguiente pico.</h2>
+    <p class="insights-card__body">
+      Reponer queso manaba, revisar los productos pausados y dejar avanzadas las preparaciones que mas salen.
+    </p>
+    <button type="button">Ver resumen rapido</button>
+  </article>
+</section>

@@ -1,0 +1,46 @@
+<div class="admin-landing">
+  <div class="admin-landing__pattern admin-landing__pattern--left" aria-hidden="true"></div>
+  <div class="admin-landing__pattern admin-landing__pattern--right" aria-hidden="true"></div>
+
+  <div class="admin-shell">
+    <aside class="admin-sidebar">
+      <div class="brand-block">
+        <div class="brand-mark">GM</div>
+        <div>
+          <p class="eyebrow">Granito Mostaza</p>
+          <h1>Panel administrador</h1>
+        </div>
+      </div>
+
+      <nav class="admin-nav" aria-label="Administracion">
+        <a
+          *ngFor="let item of navItems"
+          class="admin-nav__item"
+          [class.admin-nav__item--active]="item.active"
+          href="#"
+        >
+          <i [class]="item.icon"></i>
+          <span>{{ item.label }}</span>
+        </a>
+      </nav>
+
+      <div class="admin-sidebar__card">
+        <p class="admin-sidebar__label">Modo actual</p>
+        <h2>Panel simple y util</h2>
+        <p>
+          Pensado para una operacion pequena: ver pedidos, mover productos y revisar como va el dia sin distraerse.
+        </p>
+        <a routerLink="/" class="admin-sidebar__link">Volver a la vista cliente</a>
+      </div>
+    </aside>
+
+    <main class="admin-content">
+      <app-main-section-admin></app-main-section-admin>
+      <app-secondary-section-admin></app-secondary-section-admin>
+      <app-third-section-admin></app-third-section-admin>
+      <app-fourth-section-admin></app-fourth-section-admin>
+    </main>
+  </div>
+
+  <app-floating-home-button></app-floating-home-button>
+</div>

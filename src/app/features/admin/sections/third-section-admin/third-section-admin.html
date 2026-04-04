@@ -1,0 +1,44 @@
+<section class="ops-grid">
+  <article class="ops-card">
+    <div class="ops-card__header">
+      <div>
+        <p>Pedidos recientes</p>
+        <h2>Lo siguiente que conviene resolver</h2>
+      </div>
+      <span>7 pendientes</span>
+    </div>
+
+    <div class="ops-list">
+      <div class="ops-list__item" *ngFor="let order of orders">
+        <div>
+          <h3>{{ order.customer }}</h3>
+          <p>{{ order.items }}</p>
+        </div>
+        <div class="ops-list__meta">
+          <strong>{{ order.status }}</strong>
+          <span>{{ order.eta }}</span>
+        </div>
+      </div>
+    </div>
+  </article>
+
+  <article class="ops-card">
+    <div class="ops-card__header">
+      <div>
+        <p>Productos e insumos</p>
+        <h2>Lo que puede frenarte durante el dia</h2>
+      </div>
+      <span>3 por revisar</span>
+    </div>
+
+    <div class="stock-list">
+      <div class="stock-list__item" *ngFor="let item of stockAlerts">
+        <div>
+          <h3>{{ item.product }}</h3>
+          <p>{{ item.remaining }}</p>
+        </div>
+        <strong>{{ item.urgency }}</strong>
+      </div>
+    </div>
+  </article>
+</section>

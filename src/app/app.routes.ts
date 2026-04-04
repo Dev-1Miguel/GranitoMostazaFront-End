@@ -7,6 +7,13 @@ export const routes: Routes = [
         component: HomeLandingComponent
     },
     {
+        path: 'admin',
+        loadComponent: () =>
+            import('./features/admin/pages/admin-landing/admin-landing.component').then(
+                (m) => m.AdminLandingComponent
+            )
+    },
+    {
         path: 'menu',
         loadComponent: () =>
             import('./features/menu/pages/menu-landing/menu-landing.component').then(
