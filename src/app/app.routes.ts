@@ -21,6 +21,13 @@ export const routes: Routes = [
             )
     },
     {
+        path: 'admin/productos',
+        loadComponent: () =>
+            import('./features/admin/pages/products-landing/products-landing.component').then(
+                (m) => m.ProductsLandingComponent
+            )
+    },
+    {
         path: 'menu',
         loadComponent: () =>
             import('./features/menu/pages/menu-landing/menu-landing.component').then(
