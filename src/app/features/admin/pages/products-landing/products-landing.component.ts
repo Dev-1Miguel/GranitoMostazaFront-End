@@ -41,6 +41,7 @@ interface ProductFormModel {
 export class ProductsLandingComponent implements OnInit {
   private readonly menuDataService = inject(MenuDataService);
   private readonly destroyRef = inject(DestroyRef);
+  readonly pageSize = 4;
 
   readonly navItems: AdminNavItem[] = [
     { label: 'Dashboard', icon: 'pi pi-th-large', route: '/admin' },
@@ -64,6 +65,7 @@ export class ProductsLandingComponent implements OnInit {
   activeCategory: ProductCategoryKey | 'todos' = 'todos';
   activeStatus: ProductStatus | 'Todos' = 'Todos';
   isCreating = false;
+  currentPage = 1;
 
   form: ProductFormModel = this.createEmptyForm();
 
@@ -74,6 +76,9 @@ export class ProductsLandingComponent implements OnInit {
       .subscribe((data) => {
         this.products = this.flattenProducts(data);
         this.selectedProduct = this.filteredProducts[0] ?? this.products[0] ?? null;
+        if (this.selectedProduct) {
+          this.form = { ...this.selectedProduct };
+        }
       });
   }
 
@@ -92,6 +97,19 @@ export class ProductsLandingComponent implements OnInit {
 
       return matchesSearch && matchesCategory && matchesStatus;
     });
+  }
+
+  get paginatedProducts(): ProductAdminItem[] {
+    const start = (this.currentPage - 1) * this.pageSize;
+    return this.filteredProducts.slice(start, start + this.pageSize);
+  }
+
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.filteredProducts.length / this.pageSize));
+  }
+
+  get pageNumbers(): number[] {
+    return Array.from({ length: this.totalPages }, (_, index) => index + 1);
   }
 
   get totalProducts(): number {
@@ -113,17 +131,35 @@ export class ProductsLandingComponent implements OnInit {
 
   setCategoryFilter(category: ProductCategoryKey | 'todos'): void {
     this.activeCategory = category;
+    this.currentPage = 1;
     this.ensureSelectedProductVisible();
   }
 
   setStatusFilter(status: ProductStatus | 'Todos'): void {
     this.activeStatus = status;
+    this.currentPage = 1;
+    this.ensureSelectedProductVisible();
+  }
+
+  onSearchChange(value: string): void {
+    this.productSearch = value;
+    this.currentPage = 1;
+    this.ensureSelectedProductVisible();
+  }
+
+  goToPage(page: number): void {
+    if (page < 1 || page > this.totalPages) {
+      return;
+    }
+
+    this.currentPage = page;
     this.ensureSelectedProductVisible();
   }
 
   startCreateProduct(): void {
     this.isCreating = true;
     this.selectedProduct = null;
+    this.currentPage = 1;
     this.form = this.createEmptyForm();
   }
 
@@ -154,6 +190,7 @@ export class ProductsLandingComponent implements OnInit {
       };
 
       this.products = [newProduct, ...this.products];
+      this.currentPage = 1;
       this.selectedProduct = newProduct;
       this.isCreating = false;
       this.form = { ...newProduct };
@@ -165,7 +202,7 @@ export class ProductsLandingComponent implements OnInit {
     }
 
     this.products = this.products.map((product) =>
-      product === this.selectedProduct
+      product.id === this.selectedProduct?.id && product.category === this.selectedProduct?.category
         ? {
             ...product,
             name: normalizedName,
@@ -181,9 +218,7 @@ export class ProductsLandingComponent implements OnInit {
     this.selectedProduct =
       this.products.find(
         (product) =>
-          product.id === (this.form.id ?? this.selectedProduct?.id) &&
-          product.category === this.form.category &&
-          product.name === normalizedName
+          product.id === (this.form.id ?? this.selectedProduct?.id) && product.category === this.form.category
       ) ?? null;
 
     if (this.selectedProduct) {
@@ -226,21 +261,25 @@ export class ProductsLandingComponent implements OnInit {
   }
 
   private ensureSelectedProductVisible(): void {
+    if (this.currentPage > this.totalPages) {
+      this.currentPage = this.totalPages;
+    }
+
     if (!this.selectedProduct) {
-      this.selectedProduct = this.filteredProducts[0] ?? null;
+      this.selectedProduct = this.paginatedProducts[0] ?? this.filteredProducts[0] ?? null;
       if (this.selectedProduct) {
         this.form = { ...this.selectedProduct };
       }
       return;
     }
 
-    const stillVisible = this.filteredProducts.some(
+    const stillVisible = this.paginatedProducts.some(
       (product) =>
         product.id === this.selectedProduct?.id && product.category === this.selectedProduct?.category
     );
 
     if (!stillVisible) {
-      this.selectedProduct = this.filteredProducts[0] ?? null;
+      this.selectedProduct = this.paginatedProducts[0] ?? this.filteredProducts[0] ?? null;
       if (this.selectedProduct) {
         this.isCreating = false;
         this.form = { ...this.selectedProduct };

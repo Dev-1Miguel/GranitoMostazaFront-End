@@ -55,8 +55,19 @@
         </div>
 
         <div class="orders-toolbar">
-          <input type="text" value="Buscar por pedido, cliente o mesa" aria-label="Buscar pedidos" />
-          <button type="button">Ver solo urgentes</button>
+          <input
+            type="text"
+            [(ngModel)]="searchTerm"
+            placeholder="Buscar por pedido, cliente o producto"
+            aria-label="Buscar pedidos"
+          />
+          <button
+            type="button"
+            [class.orders-toolbar__button--active]="showUrgentOnly"
+            (click)="toggleUrgentFilter()"
+          >
+            {{ showUrgentOnly ? 'Ver todos' : 'Ver solo urgentes' }}
+          </button>
         </div>
       </section>
 
@@ -84,7 +95,7 @@
           <article
             *ngFor="let order of filteredOrders"
             class="order-card"
-            [class.order-card--selected]="selectedOrder.id === order.id"
+            [class.order-card--selected]="selectedOrder?.id === order.id"
             (click)="selectOrder(order)"
           >
             <div class="order-card__top">
@@ -100,14 +111,21 @@
             <div class="order-card__bottom">
               <strong>{{ order.total }}</strong>
               <div class="order-card__actions">
-                <button type="button">Detalle</button>
-                <button type="button" class="order-card__actions--primary">Mover estado</button>
+                <button type="button" (click)="openOrderDetail(order, $event)">Detalle</button>
+                <button type="button" class="order-card__actions--primary" (click)="moveOrderStatus(order, $event)">
+                  Mover estado
+                </button>
               </div>
             </div>
           </article>
+
+          <article class="orders-empty" *ngIf="!filteredOrders.length">
+            <h3>No hay pedidos para ese filtro.</h3>
+            <p>Prueba cambiando el estado, la busqueda o el filtro de urgentes.</p>
+          </article>
         </div>
 
-        <aside class="order-detail" *ngIf="selectedOrder as order">
+        <aside class="order-detail" *ngIf="selectedOrder as order; else emptyDetail">
           <p class="order-detail__eyebrow">Detalle del pedido</p>
           <h2>{{ order.id }} · {{ order.customer }}</h2>
 
@@ -144,10 +162,29 @@
           </div>
 
           <div class="detail-actions">
-            <button type="button">Marcar listo</button>
-            <button type="button" class="detail-actions__secondary">Marcar entregado</button>
+            <button type="button" [disabled]="!canMarkReady(order)" (click)="markAsReady(order, $event)">
+              Marcar listo
+            </button>
+            <button
+              type="button"
+              class="detail-actions__secondary"
+              [disabled]="!canMarkDelivered(order)"
+              (click)="markAsDelivered(order, $event)"
+            >
+              Marcar entregado
+            </button>
           </div>
         </aside>
+
+        <ng-template #emptyDetail>
+          <aside class="order-detail order-detail--empty">
+            <p class="order-detail__eyebrow">Detalle del pedido</p>
+            <h2>Sin pedido seleccionado</h2>
+            <p class="order-detail__empty-copy">
+              Cuando un filtro no tenga resultados, esta columna se mantiene estable para que la pantalla no se deforme.
+            </p>
+          </aside>
+        </ng-template>
       </section>
     </main>
   </div>

@@ -25,19 +25,19 @@
   <article class="ops-card">
     <div class="ops-card__header">
       <div>
-        <p>Productos e insumos</p>
-        <h2>Lo que puede frenarte durante el dia</h2>
+        <p>Resumen del menu</p>
+        <h2>Como esta repartido tu catalogo hoy</h2>
       </div>
-      <span>3 por revisar</span>
+      <span>{{ categorySummary.length }} categorias</span>
     </div>
 
     <div class="stock-list">
-      <div class="stock-list__item" *ngFor="let item of stockAlerts">
+      <div class="stock-list__item" *ngFor="let item of categorySummary">
         <div>
-          <h3>{{ item.product }}</h3>
-          <p>{{ item.remaining }}</p>
+          <h3>{{ item.category }}</h3>
+          <p>{{ item.quantity }}</p>
         </div>
-        <strong>{{ item.urgency }}</strong>
+        <strong>{{ item.note }}</strong>
       </div>
     </div>
   </article>

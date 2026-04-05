@@ -1,5 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { MenuDataService } from '../../../menu/menu-data.service';
+import { Product } from '../../../../shared/models/product.interfaces';
 
 interface AdminStat {
   label: string;
@@ -14,11 +17,38 @@ interface AdminStat {
   templateUrl: './main-section-admin.html',
   styleUrls: ['./main-section-admin.css']
 })
-export class MainSectionAdminComponent {
-  readonly stats: AdminStat[] = [
-    { label: 'Ventas de hoy', value: '$186', trend: 'Mejor que ayer en la manana' },
-    { label: 'Pedidos pendientes', value: '7', trend: '3 por entregar' },
-    { label: 'Productos pausados', value: '2', trend: 'Sin stock por ahora' },
-    { label: 'Preparaciones listas', value: '11', trend: 'Buen ritmo del turno' }
-  ];
+export class MainSectionAdminComponent implements OnInit {
+  private readonly menuDataService = inject(MenuDataService);
+  private readonly destroyRef = inject(DestroyRef);
+
+  stats: AdminStat[] = [];
+
+  ngOnInit(): void {
+    this.menuDataService
+      .getMenuData()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((data) => {
+        const postres = data.postres.length;
+        const desayunos = data.desayunos.length;
+        const bebidas = data.bebidas.length;
+        const allProducts = [...data.postres, ...data.desayunos, ...data.bebidas];
+        const averagePrice = this.calculateAveragePrice(allProducts);
+
+        this.stats = [
+          { label: 'Productos en menu', value: `${allProducts.length}`, trend: 'Catalogo visible desde menu.json' },
+          { label: 'Postres cargados', value: `${postres}`, trend: 'Categoria con mas variedad' },
+          { label: 'Desayunos cargados', value: `${desayunos}`, trend: 'Buenos para la primera mitad del dia' },
+          { label: 'Precio promedio', value: `$${averagePrice.toFixed(2)}`, trend: `${bebidas} bebidas activas en el menu` }
+        ];
+      });
+  }
+
+  private calculateAveragePrice(products: Product[]): number {
+    if (!products.length) {
+      return 0;
+    }
+
+    const total = products.reduce((sum, product) => sum + product.price, 0);
+    return total / products.length;
+  }
 }

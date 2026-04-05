@@ -57,7 +57,8 @@
         <div class="products-toolbar">
           <input
             type="text"
-            [(ngModel)]="productSearch"
+            [ngModel]="productSearch"
+            (ngModelChange)="onSearchChange($event)"
             placeholder="Buscar por nombre o descripcion"
             aria-label="Buscar productos"
           />
@@ -111,41 +112,78 @@
       </section>
 
       <section class="products-main">
-        <div class="products-list">
-          <article
-            *ngFor="let product of filteredProducts; trackBy: trackByProduct"
-            class="product-card"
-            [class.product-card--selected]="selectedProduct?.id === product.id && selectedProduct?.category === product.category && !isCreating"
-            (click)="selectProduct(product)"
-          >
-            <img [src]="product.image" [alt]="product.name" class="product-card__image" />
+        <div class="products-column">
+          <div class="products-list">
+            <article
+              *ngFor="let product of paginatedProducts; trackBy: trackByProduct"
+              class="product-card"
+              [class.product-card--selected]="selectedProduct?.id === product.id && selectedProduct?.category === product.category && !isCreating"
+              (click)="selectProduct(product)"
+            >
+              <img [src]="product.image" [alt]="product.name" class="product-card__image" />
 
-            <div class="product-card__body">
-              <div class="product-card__top">
-                <div>
-                  <p>{{ getCategoryLabel(product.category) }}</p>
-                  <h3>{{ product.name }}</h3>
+              <div class="product-card__body">
+                <div class="product-card__top">
+                  <div>
+                    <p>{{ getCategoryLabel(product.category) }}</p>
+                    <h3>{{ product.name }}</h3>
+                  </div>
+                  <span [class]="getStatusClass(product.status)">{{ product.status }}</span>
                 </div>
-                <span [class]="getStatusClass(product.status)">{{ product.status }}</span>
-              </div>
 
-              <p class="product-card__description">{{ product.description }}</p>
+                <p class="product-card__description">{{ product.description }}</p>
 
-              <div class="product-card__bottom">
-                <strong>${{ product.price.toFixed(2) }}</strong>
-                <div class="product-card__actions">
-                  <button type="button">Editar</button>
-                  <button
-                    type="button"
-                    class="product-card__actions--primary"
-                    (click)="toggleStatus(product, $event)"
-                  >
-                    {{ product.status === 'Activo' ? 'Desactivar' : 'Activar' }}
-                  </button>
+                <div class="product-card__bottom">
+                  <strong>${{ product.price.toFixed(2) }}</strong>
+                  <div class="product-card__actions">
+                    <button type="button" (click)="selectProduct(product); $event.stopPropagation()">Editar</button>
+                    <button
+                      type="button"
+                      class="product-card__actions--primary"
+                      (click)="toggleStatus(product, $event)"
+                    >
+                      {{ product.status === 'Activo' ? 'Desactivar' : 'Activar' }}
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          </article>
+            </article>
+
+            <article class="products-empty" *ngIf="!paginatedProducts.length">
+              <h3>No hay productos para ese filtro.</h3>
+              <p>Prueba cambiando la busqueda, la categoria o el estado.</p>
+            </article>
+          </div>
+
+          <div class="products-pagination" *ngIf="filteredProducts.length">
+            <button
+              type="button"
+              class="pagination-button"
+              [disabled]="currentPage === 1"
+              (click)="goToPage(currentPage - 1)"
+            >
+              Anterior
+            </button>
+
+            <button
+              *ngFor="let page of pageNumbers"
+              type="button"
+              class="pagination-button"
+              [class.pagination-button--active]="currentPage === page"
+              (click)="goToPage(page)"
+            >
+              {{ page }}
+            </button>
+
+            <button
+              type="button"
+              class="pagination-button"
+              [disabled]="currentPage === totalPages"
+              (click)="goToPage(currentPage + 1)"
+            >
+              Siguiente
+            </button>
+          </div>
         </div>
 
         <aside class="product-detail">
