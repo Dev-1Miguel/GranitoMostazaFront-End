@@ -45,8 +45,8 @@
     </aside>
 
     <main class="orders-content">
-      <section class="orders-header">
-        <div>
+      <section class="orders-header rounded-[28px] border border-white/50 bg-white/40 p-4 shadow-sm backdrop-blur-sm md:p-5">
+        <div class="max-w-3xl">
           <p class="orders-header__eyebrow">Seccion de pedidos</p>
           <h2>Todo lo que toca preparar y entregar.</h2>
           <p>
@@ -54,20 +54,25 @@
           </p>
         </div>
 
-        <div class="orders-toolbar">
+        <div class="orders-toolbar items-center">
           <input
+            pInputText
             type="text"
             [(ngModel)]="searchTerm"
+            class="w-full md:max-w-xl"
             placeholder="Buscar por pedido, cliente o producto"
             aria-label="Buscar pedidos"
           />
           <button
+            pButton
             type="button"
+            [icon]="showUrgentOnly ? 'pi pi-eye-slash' : 'pi pi-bolt'"
+            [label]="showUrgentOnly ? 'Ver todos' : 'Ver solo urgentes'"
+            [severity]="showUrgentOnly ? 'contrast' : 'warn'"
+            [raised]="true"
             [class.orders-toolbar__button--active]="showUrgentOnly"
             (click)="toggleUrgentFilter()"
-          >
-            {{ showUrgentOnly ? 'Ver todos' : 'Ver solo urgentes' }}
-          </button>
+          ></button>
         </div>
       </section>
 
@@ -81,13 +86,16 @@
       <section class="orders-filters">
         <button
           *ngFor="let filter of statusFilters"
+          pButton
           type="button"
           class="filter-chip"
+          [label]="filter"
+          [text]="activeFilter !== filter"
+          [raised]="activeFilter === filter"
+          [severity]="activeFilter === filter ? 'contrast' : 'secondary'"
           [class.filter-chip--active]="activeFilter === filter"
           (click)="setFilter(filter)"
-        >
-          {{ filter }}
-        </button>
+        ></button>
       </section>
 
       <section class="orders-main">
@@ -96,14 +104,17 @@
             *ngFor="let order of filteredOrders"
             class="order-card"
             [class.order-card--selected]="selectedOrder?.id === order.id"
-            (click)="selectOrder(order)"
           >
             <div class="order-card__top">
               <div>
                 <h3>{{ order.id }} · {{ order.customer }}</h3>
                 <p>{{ order.channel }} · {{ order.time }}</p>
               </div>
-              <span [class]="getStatusClass(order.status)">{{ order.status }}</span>
+              <p-tag
+                [value]="order.status"
+                [severity]="getStatusSeverity(order.status)"
+                styleClass="rounded-full px-3 py-1 text-[0.78rem] font-extrabold"
+              ></p-tag>
             </div>
 
             <p class="order-card__summary">{{ order.summary }}</p>
@@ -111,10 +122,14 @@
             <div class="order-card__bottom">
               <strong>{{ order.total }}</strong>
               <div class="order-card__actions">
-                <button type="button" (click)="openOrderDetail(order, $event)">Detalle</button>
-                <button type="button" class="order-card__actions--primary" (click)="moveOrderStatus(order, $event)">
-                  Mover estado
-                </button>
+                <button
+                  pButton
+                  type="button"
+                  label="Detalle"
+                  severity="secondary"
+                  [text]="true"
+                  (click)="openOrderDetail(order, $event)"
+                ></button>
               </div>
             </div>
           </article>
@@ -139,7 +154,11 @@
           </div>
           <div class="detail-row">
             <span>Estado</span>
-            <strong [class]="getStatusClass(order.status)">{{ order.status }}</strong>
+            <p-tag
+              [value]="order.status"
+              [severity]="getStatusSeverity(order.status)"
+              styleClass="rounded-full px-3 py-1 text-[0.78rem] font-extrabold"
+            ></p-tag>
           </div>
           <div class="detail-row">
             <span>Total</span>
@@ -162,17 +181,25 @@
           </div>
 
           <div class="detail-actions">
-            <button type="button" [disabled]="!canMarkReady(order)" (click)="markAsReady(order, $event)">
-              Marcar listo
-            </button>
             <button
+              pButton
               type="button"
+              label="Marcar listo"
+              icon="pi pi-check"
+              [disabled]="!canMarkReady(order)"
+              (click)="markAsReady(order, $event)"
+            ></button>
+            <button
+              pButton
+              type="button"
+              label="Marcar entregado"
+              icon="pi pi-send"
+              severity="secondary"
+              [text]="true"
               class="detail-actions__secondary"
               [disabled]="!canMarkDelivered(order)"
               (click)="markAsDelivered(order, $event)"
-            >
-              Marcar entregado
-            </button>
+            ></button>
           </div>
         </aside>
 

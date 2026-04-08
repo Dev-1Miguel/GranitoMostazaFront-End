@@ -6,6 +6,10 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FloatingHomeButtonComponent } from '../../../../shared/components/floating-home-button/floating-home-button.component';
 import { MenuDataService } from '../../../menu/menu-data.service';
 import { Product } from '../../../../shared/models/product.interfaces';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { RippleModule } from 'primeng/ripple';
+import { TagModule } from 'primeng/tag';
 
 interface AdminNavItem {
   label: string;
@@ -35,7 +39,17 @@ interface OrderItem {
 @Component({
   selector: 'app-orders-landing',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, RouterLinkActive, FloatingHomeButtonComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterLink,
+    RouterLinkActive,
+    FloatingHomeButtonComponent,
+    ButtonModule,
+    InputTextModule,
+    RippleModule,
+    TagModule
+  ],
   templateUrl: './orders-landing.component.html',
   styleUrls: ['./orders-landing.component.css']
 })
@@ -138,6 +152,13 @@ export class OrdersLandingComponent implements OnInit {
 
   getStatusClass(status: OrderStatus): string {
     return `status-pill status-pill--${status.toLowerCase().replace(/\s+/g, '-')}`;
+  }
+
+  getStatusSeverity(status: OrderStatus): 'warn' | 'info' | 'success' | 'secondary' {
+    if (status === 'Pendiente') return 'warn';
+    if (status === 'En preparacion') return 'info';
+    if (status === 'Listo') return 'success';
+    return 'secondary';
   }
 
   isUrgent(order: OrderItem): boolean {

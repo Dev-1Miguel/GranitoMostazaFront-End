@@ -6,6 +6,12 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FloatingHomeButtonComponent } from '../../../../shared/components/floating-home-button/floating-home-button.component';
 import { MenuDataService } from '../../../menu/menu-data.service';
 import { Product } from '../../../../shared/models/product.interfaces';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { RippleModule } from 'primeng/ripple';
+import { TagModule } from 'primeng/tag';
+import { TextareaModule } from 'primeng/textarea';
+import { PaginatorModule } from 'primeng/paginator';
 
 interface AdminNavItem {
   label: string;
@@ -34,7 +40,19 @@ interface ProductFormModel {
 @Component({
   selector: 'app-products-landing',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, RouterLinkActive, FloatingHomeButtonComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterLink,
+    RouterLinkActive,
+    FloatingHomeButtonComponent,
+    ButtonModule,
+    InputTextModule,
+    RippleModule,
+    TagModule,
+    TextareaModule,
+    PaginatorModule
+  ],
   templateUrl: './products-landing.component.html',
   styleUrls: ['./products-landing.component.css']
 })
@@ -116,6 +134,10 @@ export class ProductsLandingComponent implements OnInit {
     return this.products.length;
   }
 
+  get firstRowIndex(): number {
+    return (this.currentPage - 1) * this.pageSize;
+  }
+
   get activeProducts(): number {
     return this.products.filter((product) => product.status === 'Activo').length;
   }
@@ -153,6 +175,11 @@ export class ProductsLandingComponent implements OnInit {
     }
 
     this.currentPage = page;
+    this.ensureSelectedProductVisible();
+  }
+
+  onPaginatorPageChange(event: { page?: number; first?: number; rows?: number }): void {
+    this.currentPage = (event.page ?? 0) + 1;
     this.ensureSelectedProductVisible();
   }
 
@@ -230,7 +257,7 @@ export class ProductsLandingComponent implements OnInit {
     event?.stopPropagation();
 
     this.products = this.products.map((item) =>
-      item === product
+      item.id === product.id && item.category === product.category
         ? {
             ...item,
             status: item.status === 'Activo' ? 'Inactivo' : 'Activo'
@@ -238,18 +265,29 @@ export class ProductsLandingComponent implements OnInit {
         : item
     );
 
-    if (this.selectedProduct && this.selectedProduct === product) {
-      this.selectedProduct =
-        this.products.find((item) => item.id === product.id && item.category === product.category) ?? null;
+    const updatedProduct =
+      this.products.find((item) => item.id === product.id && item.category === product.category) ?? null;
 
+    if (
+      this.selectedProduct &&
+      this.selectedProduct.id === product.id &&
+      this.selectedProduct.category === product.category
+    ) {
+      this.selectedProduct = updatedProduct;
       if (this.selectedProduct) {
         this.form = { ...this.selectedProduct };
       }
     }
+
+    this.ensureSelectedProductVisible();
   }
 
   getStatusClass(status: ProductStatus): string {
     return `product-status product-status--${status.toLowerCase()}`;
+  }
+
+  getStatusSeverity(status: ProductStatus): 'success' | 'danger' {
+    return status === 'Activo' ? 'success' : 'danger';
   }
 
   getCategoryLabel(category: ProductCategoryKey): string {

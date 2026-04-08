@@ -45,8 +45,8 @@
     </aside>
 
     <main class="products-content">
-      <section class="products-header">
-        <div>
+      <section class="products-header rounded-[28px] border border-white/50 bg-white/40 p-4 shadow-sm backdrop-blur-sm md:p-5">
+        <div class="max-w-3xl">
           <p class="products-header__eyebrow">Seccion de productos</p>
           <h2>Tu menu, ordenado para editarlo rapido.</h2>
           <p>
@@ -54,15 +54,26 @@
           </p>
         </div>
 
-        <div class="products-toolbar">
+        <div class="products-toolbar items-center">
           <input
+            pInputText
             type="text"
             [ngModel]="productSearch"
             (ngModelChange)="onSearchChange($event)"
+            class="w-full md:max-w-xl"
             placeholder="Buscar por nombre o descripcion"
             aria-label="Buscar productos"
           />
-          <button type="button" (click)="startCreateProduct()">Nuevo producto</button>
+          <button
+            pButton
+            type="button"
+            label="Nuevo producto"
+            icon="pi pi-plus"
+            severity="contrast"
+            [raised]="true"
+            class="products-toolbar__cta"
+            (click)="startCreateProduct()"
+          ></button>
         </div>
       </section>
 
@@ -89,25 +100,31 @@
         <div class="filter-group">
           <button
             *ngFor="let filter of categoryFilters"
+            pButton
             type="button"
             class="filter-chip"
+            [label]="filter.label"
+            [text]="activeCategory !== filter.key"
+            [raised]="activeCategory === filter.key"
+            [severity]="activeCategory === filter.key ? 'contrast' : 'secondary'"
             [class.filter-chip--active]="activeCategory === filter.key"
             (click)="setCategoryFilter(filter.key)"
-          >
-            {{ filter.label }}
-          </button>
+          ></button>
         </div>
 
         <div class="filter-group">
           <button
             *ngFor="let filter of statusFilters"
+            pButton
             type="button"
             class="filter-chip"
+            [label]="filter"
+            [text]="activeStatus !== filter"
+            [raised]="activeStatus === filter"
+            [severity]="activeStatus === filter ? 'contrast' : 'secondary'"
             [class.filter-chip--active]="activeStatus === filter"
             (click)="setStatusFilter(filter)"
-          >
-            {{ filter }}
-          </button>
+          ></button>
         </div>
       </section>
 
@@ -118,7 +135,6 @@
               *ngFor="let product of paginatedProducts; trackBy: trackByProduct"
               class="product-card"
               [class.product-card--selected]="selectedProduct?.id === product.id && selectedProduct?.category === product.category && !isCreating"
-              (click)="selectProduct(product)"
             >
               <img [src]="product.image" [alt]="product.name" class="product-card__image" />
 
@@ -128,7 +144,11 @@
                     <p>{{ getCategoryLabel(product.category) }}</p>
                     <h3>{{ product.name }}</h3>
                   </div>
-                  <span [class]="getStatusClass(product.status)">{{ product.status }}</span>
+                  <p-tag
+                    [value]="product.status"
+                    [severity]="getStatusSeverity(product.status)"
+                    styleClass="rounded-full px-3 py-1 text-[0.78rem] font-extrabold"
+                  ></p-tag>
                 </div>
 
                 <p class="product-card__description">{{ product.description }}</p>
@@ -136,14 +156,16 @@
                 <div class="product-card__bottom">
                   <strong>${{ product.price.toFixed(2) }}</strong>
                   <div class="product-card__actions">
-                    <button type="button" (click)="selectProduct(product); $event.stopPropagation()">Editar</button>
                     <button
+                      pButton
                       type="button"
-                      class="product-card__actions--primary"
-                      (click)="toggleStatus(product, $event)"
-                    >
-                      {{ product.status === 'Activo' ? 'Desactivar' : 'Activar' }}
-                    </button>
+                      label="Editar"
+                      severity="secondary"
+                      [text]="true"
+                      size="small"
+                      class="product-card__action-button"
+                      (click)="selectProduct(product); $event.stopPropagation()"
+                    ></button>
                   </div>
                 </div>
               </div>
@@ -156,33 +178,15 @@
           </div>
 
           <div class="products-pagination" *ngIf="filteredProducts.length">
-            <button
-              type="button"
-              class="pagination-button"
-              [disabled]="currentPage === 1"
-              (click)="goToPage(currentPage - 1)"
-            >
-              Anterior
-            </button>
-
-            <button
-              *ngFor="let page of pageNumbers"
-              type="button"
-              class="pagination-button"
-              [class.pagination-button--active]="currentPage === page"
-              (click)="goToPage(page)"
-            >
-              {{ page }}
-            </button>
-
-            <button
-              type="button"
-              class="pagination-button"
-              [disabled]="currentPage === totalPages"
-              (click)="goToPage(currentPage + 1)"
-            >
-              Siguiente
-            </button>
+            <p-paginator
+              [first]="firstRowIndex"
+              [rows]="pageSize"
+              [totalRecords]="filteredProducts.length"
+              [pageLinkSize]="5"
+              [showFirstLastIcon]="false"
+              styleClass="products-prime-paginator"
+              (onPageChange)="onPaginatorPageChange($event)"
+            ></p-paginator>
           </div>
         </div>
 
@@ -193,18 +197,18 @@
           <form class="product-form" (ngSubmit)="saveProduct()">
             <label>
               <span>Nombre</span>
-              <input type="text" name="name" [(ngModel)]="form.name" />
+              <input pInputText type="text" name="name" [(ngModel)]="form.name" class="w-full" />
             </label>
 
             <label>
               <span>Descripcion</span>
-              <textarea name="description" rows="4" [(ngModel)]="form.description"></textarea>
+              <textarea pTextarea name="description" rows="4" [(ngModel)]="form.description" class="w-full" [autoResize]="true"></textarea>
             </label>
 
             <div class="product-form__grid">
               <label>
                 <span>Precio</span>
-                <input type="number" name="price" step="0.01" [(ngModel)]="form.price" />
+                <input pInputText type="number" name="price" step="0.01" [(ngModel)]="form.price" class="w-full" />
               </label>
 
               <label>
@@ -219,7 +223,7 @@
 
             <label>
               <span>Imagen</span>
-              <input type="text" name="image" [(ngModel)]="form.image" />
+              <input pInputText type="text" name="image" [(ngModel)]="form.image" class="w-full" />
             </label>
 
             <label>
@@ -235,7 +239,13 @@
             </div>
 
             <div class="product-form__actions">
-              <button type="submit">{{ isCreating ? 'Crear producto' : 'Guardar cambios' }}</button>
+              <button
+                pButton
+                type="submit"
+                [label]="isCreating ? 'Crear producto' : 'Guardar cambios'"
+                [icon]="isCreating ? 'pi pi-plus' : 'pi pi-save'"
+                severity="contrast"
+              ></button>
             </div>
           </form>
         </aside>
