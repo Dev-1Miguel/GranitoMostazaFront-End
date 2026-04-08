@@ -1,24 +1,27 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 interface QuickAction {
   title: string;
   description: string;
   icon: string;
+  route: string;
+  cta: string;
 }
 
 @Component({
   selector: 'app-secondary-section-admin',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './secondary-section-admin.html',
   styleUrls: ['./secondary-section-admin.css']
 })
 export class SecondarySectionAdminComponent {
   readonly quickActions: QuickAction[] = [
-    { title: 'Ver pedidos', description: 'Entrar rapido a lo que toca preparar o entregar.', icon: 'pi pi-shopping-bag' },
-    { title: 'Actualizar productos', description: 'Cambiar precio, disponibilidad o descripcion del menu.', icon: 'pi pi-box' },
-    { title: 'Marcar agotados', description: 'Ocultar lo que ya no se puede vender durante el dia.', icon: 'pi pi-ban' },
-    { title: 'Revisar ventas', description: 'Mirar un resumen simple para saber como va la jornada.', icon: 'pi pi-chart-line' }
+    { title: 'Pedidos', description: 'Controla que toca preparar, entregar o revisar segun el estado del pedido.', icon: 'pi pi-shopping-bag', route: '/admin/pedidos', cta: 'Abrir pedidos' },
+    { title: 'Productos', description: 'Edita precios, categorias, imagenes y disponibilidad del catalogo actual.', icon: 'pi pi-box', route: '/admin/productos', cta: 'Abrir productos' },
+    { title: 'Reportes', description: 'Consulta productos mas vendidos, menos vendidos y modalidad de consumo.', icon: 'pi pi-chart-line', route: '/admin/reportes', cta: 'Abrir reportes' },
+    { title: 'Vista cliente', description: 'Vuelve al sitio principal para revisar como se ve la experiencia publica.', icon: 'pi pi-home', route: '/', cta: 'Ir al inicio' }
   ];
 }

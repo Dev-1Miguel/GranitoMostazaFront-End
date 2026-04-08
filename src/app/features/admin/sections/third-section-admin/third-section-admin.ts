@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { RouterLink } from '@angular/router';
 import { MenuDataService } from '../../../menu/menu-data.service';
 import { Product } from '../../../../shared/models/product.interfaces';
 
@@ -15,12 +16,13 @@ interface CategorySummary {
   category: string;
   quantity: string;
   note: string;
+  route: string;
 }
 
 @Component({
   selector: 'app-third-section-admin',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './third-section-admin.html',
   styleUrls: ['./third-section-admin.css']
 })
@@ -39,19 +41,22 @@ export class ThirdSectionAdminComponent implements OnInit {
         this.orders = this.buildOrders(data.postres, data.desayunos, data.bebidas);
         this.categorySummary = [
           {
-            category: 'Postres',
-            quantity: `${data.postres.length} productos`,
-            note: `Desde $${Math.min(...data.postres.map((product) => product.price)).toFixed(2)}`
+            category: 'Pedidos',
+            quantity: 'Seguimiento operativo',
+            note: 'Entra para cambiar estados y revisar el detalle de cada pedido.',
+            route: '/admin/pedidos'
           },
           {
-            category: 'Desayunos',
-            quantity: `${data.desayunos.length} productos`,
-            note: `Hasta $${Math.max(...data.desayunos.map((product) => product.price)).toFixed(2)}`
+            category: 'Productos',
+            quantity: `${data.postres.length + data.desayunos.length + data.bebidas.length} productos visibles`,
+            note: `Desde ${this.getFirstProductName(data.desayunos)} hasta ${this.getFirstProductName(data.postres)}.`,
+            route: '/admin/productos'
           },
           {
-            category: 'Bebidas',
-            quantity: `${data.bebidas.length} productos`,
-            note: `${this.getFirstProductName(data.bebidas)} destaca en esta categoria`
+            category: 'Reportes',
+            quantity: 'Analisis por dia, mes y anio',
+            note: 'Consulta ventas, productos mas movidos y descarga el Excel.',
+            route: '/admin/reportes'
           }
         ];
       });

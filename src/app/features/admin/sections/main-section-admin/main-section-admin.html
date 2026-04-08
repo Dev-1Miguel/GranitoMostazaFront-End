@@ -1,7 +1,16 @@
 <section class="admin-hero">
+  <div class="admin-hero__copy">
+    <p class="admin-hero__eyebrow">Dashboard principal</p>
+    <h2>Administra el negocio desde tres frentes claros: pedidos, productos y reportes.</h2>
+    <p>
+      Usa esta portada para entrar rapido al modulo que toca resolver, revisar el estado general del panel y mantener visible lo importante del dia.
+    </p>
+  </div>
+
   <div class="admin-hero__toolbar">
-    <input type="text" value="Buscar producto del menu" aria-label="Buscar" />
-    <button type="button">Ver menu cargado</button>
+    <a routerLink="/admin/pedidos" class="admin-hero__action">Abrir pedidos</a>
+    <a routerLink="/admin/productos" class="admin-hero__action admin-hero__action--soft">Gestionar productos</a>
+    <a routerLink="/admin/reportes" class="admin-hero__action admin-hero__action--soft">Ver reportes</a>
   </div>
 
   <div class="admin-stats">

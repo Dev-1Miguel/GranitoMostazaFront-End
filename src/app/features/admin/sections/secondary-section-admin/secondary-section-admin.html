@@ -14,7 +14,7 @@
       </div>
       <h3>{{ action.title }}</h3>
       <p>{{ action.description }}</p>
-      <button type="button">Abrir modulo</button>
+      <a [routerLink]="action.route" class="quick-card__link">{{ action.cta }}</a>
     </article>
   </div>
 </section>

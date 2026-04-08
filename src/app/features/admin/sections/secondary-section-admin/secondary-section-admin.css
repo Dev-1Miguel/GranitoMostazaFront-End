@@ -72,7 +72,9 @@
   line-height: 1.6;
 }
 
-.quick-card button {
+.quick-card__link {
+  width: fit-content;
+  text-decoration: none;
   width: fit-content;
   padding: 10px 14px;
   border: 0;

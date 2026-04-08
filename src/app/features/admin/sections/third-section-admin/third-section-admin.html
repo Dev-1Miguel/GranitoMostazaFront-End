@@ -25,10 +25,10 @@
   <article class="ops-card">
     <div class="ops-card__header">
       <div>
-        <p>Resumen del menu</p>
-        <h2>Como esta repartido tu catalogo hoy</h2>
+        <p>Mapa del panel</p>
+        <h2>Los tres modulos que mueven el dashboard</h2>
       </div>
-      <span>{{ categorySummary.length }} categorias</span>
+      <span>{{ categorySummary.length }} modulos</span>
     </div>
 
     <div class="stock-list">
@@ -37,7 +37,10 @@
           <h3>{{ item.category }}</h3>
           <p>{{ item.quantity }}</p>
         </div>
-        <strong>{{ item.note }}</strong>
+        <div class="stock-list__meta">
+          <strong>{{ item.note }}</strong>
+          <a [routerLink]="item.route">Entrar</a>
+        </div>
       </div>
     </div>
   </article>
