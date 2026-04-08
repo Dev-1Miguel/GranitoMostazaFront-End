@@ -75,6 +75,7 @@
             (click)="startCreateProduct()"
           ></button>
         </div>
+        <p class="text-sm text-[#7b4b4b]" *ngIf="saveMessage">{{ saveMessage }}</p>
       </section>
 
       <section class="products-summary">
@@ -245,6 +246,7 @@
                 [label]="isCreating ? 'Crear producto' : 'Guardar cambios'"
                 [icon]="isCreating ? 'pi pi-plus' : 'pi pi-save'"
                 severity="contrast"
+                [loading]="isSaving"
               ></button>
             </div>
           </form>

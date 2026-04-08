@@ -74,6 +74,7 @@
             (click)="toggleUrgentFilter()"
           ></button>
         </div>
+        <p class="text-sm text-[#7b4b4b]" *ngIf="statusMessage">{{ statusMessage }}</p>
       </section>
 
       <section class="orders-summary">

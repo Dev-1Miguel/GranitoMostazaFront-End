@@ -1,40 +1,27 @@
 import { CommonModule } from '@angular/common';
 import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink, RouterLinkActive } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FloatingHomeButtonComponent } from '../../../../shared/components/floating-home-button/floating-home-button.component';
-import { MenuDataService } from '../../../menu/menu-data.service';
-import { Product } from '../../../../shared/models/product.interfaces';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
+import { PaginatorModule } from 'primeng/paginator';
 import { RippleModule } from 'primeng/ripple';
 import { TagModule } from 'primeng/tag';
 import { TextareaModule } from 'primeng/textarea';
-import { PaginatorModule } from 'primeng/paginator';
+import { FloatingHomeButtonComponent } from '../../../../shared/components/floating-home-button/floating-home-button.component';
+import {
+  ProductAdminItem,
+  ProductCategoryKey,
+  ProductFormModel,
+  ProductStatus,
+  ProductsApiService
+} from '../../services/products-api.service';
 
 interface AdminNavItem {
   label: string;
   icon: string;
   route?: string;
-}
-
-type ProductCategoryKey = 'postres' | 'desayunos' | 'bebidas';
-type ProductStatus = 'Activo' | 'Inactivo';
-
-interface ProductAdminItem extends Product {
-  category: ProductCategoryKey;
-  status: ProductStatus;
-}
-
-interface ProductFormModel {
-  id: number | null;
-  name: string;
-  description: string;
-  price: number | null;
-  image: string;
-  category: ProductCategoryKey;
-  status: ProductStatus;
 }
 
 @Component({
@@ -57,7 +44,7 @@ interface ProductFormModel {
   styleUrls: ['./products-landing.component.css']
 })
 export class ProductsLandingComponent implements OnInit {
-  private readonly menuDataService = inject(MenuDataService);
+  private readonly productsApiService = inject(ProductsApiService);
   private readonly destroyRef = inject(DestroyRef);
   readonly pageSize = 4;
 
@@ -83,16 +70,18 @@ export class ProductsLandingComponent implements OnInit {
   activeCategory: ProductCategoryKey | 'todos' = 'todos';
   activeStatus: ProductStatus | 'Todos' = 'Todos';
   isCreating = false;
+  isSaving = false;
   currentPage = 1;
+  saveMessage = '';
 
   form: ProductFormModel = this.createEmptyForm();
 
   ngOnInit(): void {
-    this.menuDataService
-      .getMenuData()
+    this.productsApiService
+      .getProducts()
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((data) => {
-        this.products = this.flattenProducts(data);
+      .subscribe((products) => {
+        this.products = products;
         this.selectedProduct = this.filteredProducts[0] ?? this.products[0] ?? null;
         if (this.selectedProduct) {
           this.form = { ...this.selectedProduct };
@@ -124,10 +113,6 @@ export class ProductsLandingComponent implements OnInit {
 
   get totalPages(): number {
     return Math.max(1, Math.ceil(this.filteredProducts.length / this.pageSize));
-  }
-
-  get pageNumbers(): number[] {
-    return Array.from({ length: this.totalPages }, (_, index) => index + 1);
   }
 
   get totalProducts(): number {
@@ -169,16 +154,7 @@ export class ProductsLandingComponent implements OnInit {
     this.ensureSelectedProductVisible();
   }
 
-  goToPage(page: number): void {
-    if (page < 1 || page > this.totalPages) {
-      return;
-    }
-
-    this.currentPage = page;
-    this.ensureSelectedProductVisible();
-  }
-
-  onPaginatorPageChange(event: { page?: number; first?: number; rows?: number }): void {
+  onPaginatorPageChange(event: { page?: number }): void {
     this.currentPage = (event.page ?? 0) + 1;
     this.ensureSelectedProductVisible();
   }
@@ -187,12 +163,14 @@ export class ProductsLandingComponent implements OnInit {
     this.isCreating = true;
     this.selectedProduct = null;
     this.currentPage = 1;
+    this.saveMessage = '';
     this.form = this.createEmptyForm();
   }
 
   selectProduct(product: ProductAdminItem): void {
     this.isCreating = false;
     this.selectedProduct = product;
+    this.saveMessage = '';
     this.form = { ...product };
   }
 
@@ -202,8 +180,11 @@ export class ProductsLandingComponent implements OnInit {
     const normalizedImage = this.form.image.trim();
 
     if (!normalizedName || !normalizedDescription || this.form.price === null || !normalizedImage) {
+      this.saveMessage = 'Completa todos los campos antes de guardar.';
       return;
     }
+
+    this.isSaving = true;
 
     if (this.isCreating) {
       const newProduct: ProductAdminItem = {
@@ -216,74 +197,52 @@ export class ProductsLandingComponent implements OnInit {
         status: this.form.status
       };
 
-      this.products = [newProduct, ...this.products];
-      this.currentPage = 1;
-      this.selectedProduct = newProduct;
-      this.isCreating = false;
-      this.form = { ...newProduct };
+      this.productsApiService
+        .createProduct({ ...this.form, name: normalizedName, description: normalizedDescription, image: normalizedImage })
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (createdProduct) => this.applySavedProduct(createdProduct),
+          error: () => this.applySavedProduct(newProduct, 'Producto guardado localmente. El flujo API ya quedó preparado.')
+        });
       return;
     }
 
     if (!this.selectedProduct) {
+      this.isSaving = false;
       return;
     }
 
-    this.products = this.products.map((product) =>
-      product.id === this.selectedProduct?.id && product.category === this.selectedProduct?.category
-        ? {
-            ...product,
-            name: normalizedName,
-            description: normalizedDescription,
-            price: Number(this.form.price),
-            image: normalizedImage,
-            category: this.form.category,
-            status: this.form.status
-          }
-        : product
-    );
+    const updatedProduct: ProductAdminItem = {
+      ...this.selectedProduct,
+      id: this.form.id ?? this.selectedProduct.id,
+      name: normalizedName,
+      description: normalizedDescription,
+      price: Number(this.form.price),
+      image: normalizedImage,
+      category: this.form.category,
+      status: this.form.status
+    };
 
-    this.selectedProduct =
-      this.products.find(
-        (product) =>
-          product.id === (this.form.id ?? this.selectedProduct?.id) && product.category === this.form.category
-      ) ?? null;
-
-    if (this.selectedProduct) {
-      this.form = { ...this.selectedProduct };
-    }
+    this.productsApiService
+      .updateProduct(updatedProduct.id, updatedProduct)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (product) => this.applySavedProduct(product),
+        error: () => this.applySavedProduct(updatedProduct, 'Cambios guardados localmente. Solo falta conectar persistencia real.')
+      });
   }
 
   toggleStatus(product: ProductAdminItem, event?: Event): void {
     event?.stopPropagation();
+    const nextStatus = product.status === 'Activo' ? 'Inactivo' : 'Activo';
 
-    this.products = this.products.map((item) =>
-      item.id === product.id && item.category === product.category
-        ? {
-            ...item,
-            status: item.status === 'Activo' ? 'Inactivo' : 'Activo'
-          }
-        : item
-    );
-
-    const updatedProduct =
-      this.products.find((item) => item.id === product.id && item.category === product.category) ?? null;
-
-    if (
-      this.selectedProduct &&
-      this.selectedProduct.id === product.id &&
-      this.selectedProduct.category === product.category
-    ) {
-      this.selectedProduct = updatedProduct;
-      if (this.selectedProduct) {
-        this.form = { ...this.selectedProduct };
-      }
-    }
-
-    this.ensureSelectedProductVisible();
-  }
-
-  getStatusClass(status: ProductStatus): string {
-    return `product-status product-status--${status.toLowerCase()}`;
+    this.productsApiService
+      .updateProductStatus(product.id, product.category, nextStatus)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (updatedProduct) => this.replaceProduct(updatedProduct),
+        error: () => this.replaceProduct({ ...product, status: nextStatus })
+      });
   }
 
   getStatusSeverity(status: ProductStatus): 'success' | 'danger' {
@@ -325,20 +284,6 @@ export class ProductsLandingComponent implements OnInit {
     }
   }
 
-  private flattenProducts(data: {
-    postres: Product[];
-    desayunos: Product[];
-    bebidas: Product[];
-  }): ProductAdminItem[] {
-    return (['postres', 'desayunos', 'bebidas'] as ProductCategoryKey[]).flatMap((category) =>
-      (data[category] ?? []).map((product) => ({
-        ...product,
-        category,
-        status: 'Activo' as ProductStatus
-      }))
-    );
-  }
-
   private getNextIdForCategory(category: ProductCategoryKey): number {
     const categoryProducts = this.products.filter((product) => product.category === category);
     return (Math.max(0, ...categoryProducts.map((product) => product.id)) || 0) + 1;
@@ -354,5 +299,43 @@ export class ProductsLandingComponent implements OnInit {
       category: 'postres',
       status: 'Activo'
     };
+  }
+
+  private applySavedProduct(product: ProductAdminItem, message = 'Formulario conectado a una capa lista para API.'): void {
+    const existingIndex = this.products.findIndex(
+      (item) => item.id === product.id && item.category === product.category
+    );
+
+    if (existingIndex >= 0) {
+      this.products = this.products.map((item, index) => (index === existingIndex ? product : item));
+    } else {
+      this.products = [product, ...this.products];
+    }
+
+    this.currentPage = 1;
+    this.selectedProduct = product;
+    this.isCreating = false;
+    this.isSaving = false;
+    this.saveMessage = message;
+    this.form = { ...product };
+    this.ensureSelectedProductVisible();
+  }
+
+  private replaceProduct(product: ProductAdminItem): void {
+    this.products = this.products.map((item) =>
+      item.id === product.id && item.category === product.category ? product : item
+    );
+
+    if (
+      this.selectedProduct &&
+      this.selectedProduct.id === product.id &&
+      this.selectedProduct.category === product.category
+    ) {
+      this.selectedProduct = product;
+      this.form = { ...product };
+    }
+
+    this.saveMessage = 'Estado actualizado. Cuando exista el backend, este cambio ya saldrá por API.';
+    this.ensureSelectedProductVisible();
   }
 }

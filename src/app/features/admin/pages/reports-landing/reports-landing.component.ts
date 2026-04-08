@@ -6,47 +6,21 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { FloatingHomeButtonComponent } from '../../../../shared/components/floating-home-button/floating-home-button.component';
+import {
+  ProductBarMetric,
+  ProductMetric,
+  ReportFilterMode,
+  ReportSaleItem,
+  ReportSale,
+  SalesChannel
+} from '../../../../shared/models/report.interfaces';
+import { ReportsApiService } from '../../services/reports-api.service';
 import { Product } from '../../../../shared/models/product.interfaces';
-import { MenuDataService } from '../../../menu/menu-data.service';
 
 interface AdminNavItem {
   label: string;
   icon: string;
   route?: string;
-}
-
-type ReportFilterMode = 'dia' | 'mes' | 'anio';
-type SalesChannel = 'Domicilio' | 'Local';
-
-interface ReportSaleItem {
-  productId: number;
-  productName: string;
-  quantity: number;
-  unitPrice: number;
-  subtotal: number;
-}
-
-interface ReportSale {
-  id: string;
-  customer: string;
-  channel: SalesChannel;
-  payment: string;
-  createdAt: string;
-  items: ReportSaleItem[];
-  total: number;
-}
-
-interface ProductMetric {
-  name: string;
-  quantity: number;
-  percentage: number;
-  note: string;
-}
-
-interface ProductBarMetric {
-  name: string;
-  quantity: number;
-  percentage: number;
 }
 
 @Component({
@@ -65,7 +39,7 @@ interface ProductBarMetric {
   styleUrls: ['./reports-landing.component.css']
 })
 export class ReportsLandingComponent implements OnInit {
-  private readonly menuDataService = inject(MenuDataService);
+  private readonly reportsApiService = inject(ReportsApiService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly navItems: AdminNavItem[] = [
@@ -91,17 +65,16 @@ export class ReportsLandingComponent implements OnInit {
   selectedYear = new Date().getFullYear();
   rowsPerPage = 5;
   currentPage = 1;
+  reportMessage = '';
 
   ngOnInit(): void {
-    this.menuDataService
-      .getMenuData()
+    this.reportsApiService
+      .getSales()
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((data) => {
-        const catalog = [...data.desayunos, ...data.postres, ...data.bebidas];
-        const generatedSales = this.buildSales(catalog);
-        this.allSales.splice(0, this.allSales.length, ...generatedSales);
+      .subscribe((sales) => {
+        this.allSales.splice(0, this.allSales.length, ...sales);
 
-        const years = [...new Set(generatedSales.map((sale) => new Date(sale.createdAt).getFullYear()))].sort(
+        const years = [...new Set(sales.map((sale) => new Date(sale.createdAt).getFullYear()))].sort(
           (a, b) => b - a
         );
 
@@ -168,19 +141,19 @@ export class ReportsLandingComponent implements OnInit {
   }
 
   get topProduct(): ProductMetric {
-    return this.buildProductMetric('top');
+    return this.reportsApiService.buildProductMetric('top', this.filteredSales);
   }
 
   get leastProduct(): ProductMetric {
-    return this.buildProductMetric('least');
+    return this.reportsApiService.buildProductMetric('least', this.filteredSales);
   }
 
   get topProductsChart(): ProductBarMetric[] {
-    return this.buildProductBars('top');
+    return this.reportsApiService.buildProductBars('top', this.filteredSales);
   }
 
   get leastProductsChart(): ProductBarMetric[] {
-    return this.buildProductBars('least');
+    return this.reportsApiService.buildProductBars('least', this.filteredSales);
   }
 
   get channelMetrics(): Array<{ label: SalesChannel; count: number; percentage: number; accent: string }> {
@@ -266,6 +239,7 @@ export class ReportsLandingComponent implements OnInit {
     link.click();
 
     URL.revokeObjectURL(url);
+    this.reportMessage = 'Descarga lista. El componente ya está desacoplado para usar datos reales del API.';
   }
 
   private buildProductMetric(kind: 'top' | 'least'): ProductMetric {
