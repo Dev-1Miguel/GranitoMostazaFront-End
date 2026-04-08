@@ -1,0 +1,272 @@
+<div class="reports-landing">
+  <div class="reports-landing__pattern reports-landing__pattern--left" aria-hidden="true"></div>
+  <div class="reports-landing__pattern reports-landing__pattern--right" aria-hidden="true"></div>
+
+  <div class="reports-shell">
+    <aside class="reports-sidebar">
+      <div class="brand-block">
+        <div class="brand-mark">GM</div>
+        <div>
+          <p class="eyebrow">Granito Mostaza</p>
+          <h1>Panel administrador</h1>
+        </div>
+      </div>
+
+      <nav class="admin-nav" aria-label="Administracion">
+        <ng-container *ngFor="let item of navItems">
+          <a
+            *ngIf="item.route; else disabledItem"
+            class="admin-nav__item"
+            [routerLink]="item.route"
+            routerLinkActive="admin-nav__item--active"
+            [routerLinkActiveOptions]="{ exact: item.route === '/admin' }"
+          >
+            <i [class]="item.icon"></i>
+            <span>{{ item.label }}</span>
+          </a>
+
+          <ng-template #disabledItem>
+            <span class="admin-nav__item admin-nav__item--disabled">
+              <i [class]="item.icon"></i>
+              <span>{{ item.label }}</span>
+            </span>
+          </ng-template>
+        </ng-container>
+      </nav>
+
+      <div class="reports-sidebar__card">
+        <p class="reports-sidebar__label">Lectura del negocio</p>
+        <h2>Ventas y tendencias en una sola vista.</h2>
+        <p>
+          Filtra por dia, mes o anio, revisa que producto rota mejor y descarga el reporte para abrirlo en Excel.
+        </p>
+        <a routerLink="/" class="reports-sidebar__link">Volver a la vista cliente</a>
+      </div>
+    </aside>
+
+    <main class="reports-content">
+      <section class="reports-header rounded-[28px] border border-white/50 bg-white/40 p-4 shadow-sm backdrop-blur-sm md:p-5">
+        <div class="max-w-3xl">
+          <p class="reports-header__eyebrow">Seccion de reportes</p>
+          <h2>Entiende que se vende mas y como se pide.</h2>
+          <p>
+            Los graficos cambian segun el periodo seleccionado para ayudarte a comparar ventas del dia, del mes o del anio.
+          </p>
+        </div>
+
+        <div class="reports-toolbar">
+          <div class="filter-group">
+            <button
+              *ngFor="let option of periodOptions"
+              pButton
+              type="button"
+              class="filter-chip"
+              [label]="option.label"
+              [text]="filterMode !== option.key"
+              [raised]="filterMode === option.key"
+              [severity]="filterMode === option.key ? 'contrast' : 'secondary'"
+              [class.filter-chip--active]="filterMode === option.key"
+              (click)="setFilterMode(option.key)"
+            ></button>
+          </div>
+
+          <div class="reports-toolbar__controls">
+            <input
+              *ngIf="filterMode === 'dia'"
+              pInputText
+              type="date"
+              [(ngModel)]="selectedDay"
+              (ngModelChange)="onPeriodValueChange()"
+              aria-label="Filtrar por dia"
+            />
+
+            <input
+              *ngIf="filterMode === 'mes'"
+              pInputText
+              type="month"
+              [(ngModel)]="selectedMonth"
+              (ngModelChange)="onPeriodValueChange()"
+              aria-label="Filtrar por mes"
+            />
+
+            <select
+              *ngIf="filterMode === 'anio'"
+              [(ngModel)]="selectedYear"
+              (ngModelChange)="onPeriodValueChange()"
+              aria-label="Filtrar por anio"
+            >
+              <option *ngFor="let year of selectedYearOptions" [ngValue]="year">{{ year }}</option>
+            </select>
+
+            <button
+              pButton
+              type="button"
+              label="Descargar reporte"
+              icon="pi pi-download"
+              severity="contrast"
+              [raised]="true"
+              class="reports-toolbar__cta"
+              (click)="downloadReport()"
+            ></button>
+          </div>
+        </div>
+      </section>
+
+      <section class="reports-summary">
+        <article class="summary-card">
+          <p>Ventas del periodo</p>
+          <h3>{{ totalSales }}</h3>
+        </article>
+        <article class="summary-card">
+          <p>Ingresos</p>
+          <h3>{{ formatCurrency(totalRevenue) }}</h3>
+        </article>
+        <article class="summary-card">
+          <p>Productos vendidos</p>
+          <h3>{{ totalUnitsSold }}</h3>
+        </article>
+        <article class="summary-card">
+          <p>Ticket promedio</p>
+          <h3>{{ formatCurrency(averageTicket) }}</h3>
+        </article>
+      </section>
+
+      <section class="reports-charts">
+        <article class="chart-card">
+          <div class="chart-card__header">
+            <div>
+              <p>Producto mas comprado</p>
+              <h3>{{ topProduct.name }}</h3>
+            </div>
+            <strong>{{ topProduct.quantity }}</strong>
+          </div>
+
+          <div class="bar-chart">
+            <div class="bar-chart__row" *ngFor="let product of topProductsChart; let first = first">
+              <div class="bar-chart__meta">
+                <span>{{ product.name }}</span>
+                <strong>{{ product.quantity }}</strong>
+              </div>
+              <div class="bar-chart__track">
+                <span class="bar-chart__fill" [class.bar-chart__fill--lead]="first" [style.width.%]="product.percentage"></span>
+              </div>
+            </div>
+          </div>
+
+          <p class="chart-card__note">{{ topProduct.note }}</p>
+        </article>
+
+        <article class="chart-card">
+          <div class="chart-card__header">
+            <div>
+              <p>Producto menos comprado</p>
+              <h3>{{ leastProduct.name }}</h3>
+            </div>
+            <strong>{{ leastProduct.quantity }}</strong>
+          </div>
+
+          <div class="bar-chart">
+            <div class="bar-chart__row" *ngFor="let product of leastProductsChart; let first = first">
+              <div class="bar-chart__meta">
+                <span>{{ product.name }}</span>
+                <strong>{{ product.quantity }}</strong>
+              </div>
+              <div class="bar-chart__track bar-chart__track--soft">
+                <span class="bar-chart__fill bar-chart__fill--soft" [class.bar-chart__fill--lead]="first" [style.width.%]="product.percentage"></span>
+              </div>
+            </div>
+          </div>
+
+          <p class="chart-card__note">{{ leastProduct.note }}</p>
+        </article>
+
+        <article class="chart-card">
+          <div class="chart-card__header">
+            <div>
+              <p>Modalidad de pedido</p>
+              <h3>Domicilio vs local</h3>
+            </div>
+          </div>
+
+          <div class="bar-chart">
+            <div class="bar-chart__row" *ngFor="let channel of channelMetrics">
+              <div class="bar-chart__meta">
+                <span>{{ channel.label }}</span>
+                <strong>{{ channel.count }}</strong>
+              </div>
+              <div class="bar-chart__track">
+                <span class="bar-chart__fill" [style.background]="channel.accent" [style.width.%]="channel.percentage"></span>
+              </div>
+            </div>
+          </div>
+
+          <p class="chart-card__note">{{ leadingChannel }}</p>
+        </article>
+      </section>
+
+      <section class="sales-list">
+        <div class="sales-list__header">
+          <div>
+            <p class="sales-list__eyebrow">Detalle de ventas</p>
+            <h2>Todas las ventas del periodo filtrado</h2>
+          </div>
+          <div class="sales-list__tools">
+            <label class="sales-list__rows">
+              <span>Mostrar</span>
+              <select [(ngModel)]="rowsPerPage" (ngModelChange)="onRowsPerPageChange()" aria-label="Cantidad de registros">
+                <option *ngFor="let option of rowsPerPageOptions" [ngValue]="option">{{ option }}</option>
+              </select>
+            </label>
+            <span>{{ visibleRangeLabel }}</span>
+          </div>
+        </div>
+
+        <div class="sales-table-wrapper" *ngIf="filteredSales.length; else emptySales">
+          <table class="sales-table">
+            <thead>
+              <tr>
+                <th>Venta</th>
+                <th>Fecha</th>
+                <th>Cliente</th>
+                <th>Modalidad</th>
+                <th>Pago</th>
+                <th>Productos</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let sale of paginatedSales">
+                <td>{{ sale.id }}</td>
+                <td>{{ formatDateTime(sale.createdAt) }}</td>
+                <td>{{ sale.customer }}</td>
+                <td>
+                  <span class="sales-badge" [class.sales-badge--local]="sale.channel === 'Local'">
+                    {{ sale.channel }}
+                  </span>
+                </td>
+                <td>{{ sale.payment }}</td>
+                <td>{{ getProductsSummary(sale) }}</td>
+                <td>{{ formatCurrency(sale.total) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="sales-pagination" *ngIf="filteredSales.length > rowsPerPage">
+          <button pButton type="button" label="Anterior" [text]="true" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)"></button>
+          <span>Pagina {{ currentPage }} de {{ totalPages }}</span>
+          <button pButton type="button" label="Siguiente" [text]="true" [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)"></button>
+        </div>
+
+        <ng-template #emptySales>
+          <article class="sales-empty">
+            <h3>No hay ventas en ese filtro.</h3>
+            <p>Cambia el dia, mes o anio para ver datos y poder descargar el reporte.</p>
+          </article>
+        </ng-template>
+      </section>
+    </main>
+  </div>
+
+  <app-floating-home-button></app-floating-home-button>
+</div>

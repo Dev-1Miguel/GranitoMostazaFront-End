@@ -61,7 +61,7 @@ export class OrdersLandingComponent implements OnInit {
     { label: 'Dashboard', icon: 'pi pi-th-large', route: '/admin' },
     { label: 'Pedidos', icon: 'pi pi-shopping-bag', route: '/admin/pedidos' },
     { label: 'Productos', icon: 'pi pi-box', route: '/admin/productos' },
-    { label: 'Reportes', icon: 'pi pi-chart-line' }
+    { label: 'Reportes', icon: 'pi pi-chart-line', route: '/admin/reportes' }
   ];
 
   readonly statusFilters: Array<OrderStatus | 'Todos'> = ['Todos', 'Pendiente', 'En preparacion', 'Listo', 'Entregado'];

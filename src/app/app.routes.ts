@@ -28,6 +28,13 @@ export const routes: Routes = [
             )
     },
     {
+        path: 'admin/reportes',
+        loadComponent: () =>
+            import('./features/admin/pages/reports-landing/reports-landing.component').then(
+                (m) => m.ReportsLandingComponent
+            )
+    },
+    {
         path: 'menu',
         loadComponent: () =>
             import('./features/menu/pages/menu-landing/menu-landing.component').then(

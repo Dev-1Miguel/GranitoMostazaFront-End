@@ -65,7 +65,7 @@ export class ProductsLandingComponent implements OnInit {
     { label: 'Dashboard', icon: 'pi pi-th-large', route: '/admin' },
     { label: 'Pedidos', icon: 'pi pi-shopping-bag', route: '/admin/pedidos' },
     { label: 'Productos', icon: 'pi pi-box', route: '/admin/productos' },
-    { label: 'Reportes', icon: 'pi pi-chart-line' }
+    { label: 'Reportes', icon: 'pi pi-chart-line', route: '/admin/reportes' }
   ];
 
   readonly categoryFilters: Array<{ key: ProductCategoryKey | 'todos'; label: string }> = [
