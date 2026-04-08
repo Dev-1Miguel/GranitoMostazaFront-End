@@ -11,13 +11,14 @@
               Ingresa tus datos para registrarte
             </p>
           </div>
-          <form class="stack-4">
+          <form class="stack-4" [formGroup]="form" (ngSubmit)="submit()">
             <div class="grid grid-cols-2 gap-4">
               <div>
                 <label class="mb-1 block text-[14px] font-medium text-[#7b7b7b]">Nombre</label>
                 <input
                   type="text"
                   placeholder="Tu nombre"
+                  formControlName="firstName"
                   class="register-input h-12 w-full rounded-full border border-[#e6e6e6] bg-white px-5 text-[15px] outline-none transition"
                 />
               </div>
@@ -26,6 +27,7 @@
                 <input
                   type="text"
                   placeholder="Tu apellido"
+                  formControlName="lastName"
                   class="register-input h-12 w-full rounded-full border border-[#e6e6e6] bg-white px-5 text-[15px] outline-none transition"
                 />
               </div>
@@ -36,6 +38,7 @@
                 <input
                   type="email"
                   placeholder="Tu correo"
+                  formControlName="email"
                   class="register-input h-12 w-full rounded-full border border-[#e6e6e6] bg-white px-5 text-[15px] outline-none transition"
                 />
               </div>
@@ -44,6 +47,7 @@
                 <input
                   type="tel"
                   placeholder="Tu teléfono"
+                  formControlName="phone"
                   class="register-input h-12 w-full rounded-full border border-[#e6e6e6] bg-white px-5 text-[15px] outline-none transition"
                 />
               </div>
@@ -54,6 +58,7 @@
                 <input
                   type="password"
                   placeholder="Contraseña"
+                  formControlName="password"
                   class="register-input h-12 w-full rounded-full border border-[#e6e6e6] bg-white px-5 text-[15px] outline-none transition"
                 />
               </div>
@@ -62,17 +67,18 @@
                 <input
                   type="password"
                   placeholder="Confirma tu contraseña"
+                  formControlName="confirmPassword"
                   class="register-input h-12 w-full rounded-full border border-[#e6e6e6] bg-white px-5 text-[15px] outline-none transition"
                 />
               </div>
             </div>
             <div class="flex flex-col gap-3 pt-2 text-[14px]">
               <label class="flex items-center gap-2 text-[#8a8a8a] cursor-pointer">
-                <input type="checkbox" class="register-checkbox h-4 w-4 appearance-none rounded-[4px] border border-[#cfcfcf] cursor-pointer" />
+                <input type="checkbox" formControlName="acceptTerms" class="register-checkbox h-4 w-4 appearance-none rounded-[4px] border border-[#cfcfcf] cursor-pointer" />
                 <span>Acepto términos y condiciones</span>
               </label>
               <label class="flex items-center gap-2 text-[#8a8a8a] cursor-pointer">
-                <input type="checkbox" class="register-checkbox h-4 w-4 appearance-none rounded-[4px] border border-[#cfcfcf] cursor-pointer" />
+                <input type="checkbox" formControlName="wantsPromotions" class="register-checkbox h-4 w-4 appearance-none rounded-[4px] border border-[#cfcfcf] cursor-pointer" />
                 <span>Quiero recibir promociones (Opcional)</span>
               </label>
             </div>
@@ -80,9 +86,10 @@
               type="submit"
               class="register-primary-button mt-4 h-12 w-full rounded-full bg-[#8B2323] text-[18px] font-semibold text-white transition"
             >
-              Registrar cuenta
+              {{ isSubmitting ? 'Enviando...' : 'Registrar cuenta' }}
             </button>
           </form>
+          <p class="mt-3 text-center text-[13px] text-[#8B2323]" *ngIf="message">{{ message }}</p>
           <p class="mt-6 text-center text-[15px] text-[#8d8d8d]">
             ¿Ya tienes cuenta?
             <a routerLink="/login-landing" class="register-link font-medium text-[#8B2323]">Inicia sesión</a>

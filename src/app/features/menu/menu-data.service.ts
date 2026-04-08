@@ -1,9 +1,11 @@
 import { inject, Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
-import { map, Observable, shareReplay } from "rxjs";
+import { catchError, map, Observable, shareReplay } from "rxjs";
 import { MenuData } from "../../shared/models/menudata.interfaces";
 import { Product } from "../../shared/models/product.interfaces";
 import { CarouselItem } from "./sections/main-section-menu/interfaces/carouselItem.interfaces";
+import { environment } from "../../../environments/environment";
+import { buildApiUrl } from "../../core/config/api-url.util";
 
 interface MenuCatalogData extends MenuData {
   bebidas: Product[];
@@ -15,10 +17,18 @@ interface MenuCatalogData extends MenuData {
 })
 export class MenuDataService {
   private readonly http = inject(HttpClient);
-  private readonly dataUrl = "assets/data/menu.json";
+  private readonly apiUrl = buildApiUrl("/catalog");
+  private readonly fallbackUrl = "assets/data/menu.json";
 
   private readonly menuDataRequest$ = this.http
-    .get<MenuCatalogData>(this.dataUrl)
+    .get<MenuCatalogData>(this.apiUrl)
+    .pipe(
+      catchError(() =>
+        environment.useMockFallback
+          ? this.http.get<MenuCatalogData>(this.fallbackUrl)
+          : this.http.get<MenuCatalogData>(this.apiUrl)
+      )
+    )
     .pipe(shareReplay({ bufferSize: 1, refCount: true }));
 
   getMenuData(): Observable<MenuCatalogData> {

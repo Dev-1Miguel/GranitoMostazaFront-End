@@ -1,0 +1,20 @@
+<section class="quick-actions">
+  <div class="section-heading">
+    <div>
+      <p class="section-heading__eyebrow">Accesos rapidos</p>
+      <h2>Tareas del dia, sin vueltas innecesarias.</h2>
+    </div>
+    <span>Vista del dueno · uso diario</span>
+  </div>
+
+  <div class="quick-actions__grid">
+    <article class="quick-card" *ngFor="let action of quickActions">
+      <div class="quick-card__icon">
+        <i [class]="action.icon"></i>
+      </div>
+      <h3>{{ action.title }}</h3>
+      <p>{{ action.description }}</p>
+      <a [routerLink]="action.route" class="quick-card__link">{{ action.cta }}</a>
+    </article>
+  </div>
+</section>
