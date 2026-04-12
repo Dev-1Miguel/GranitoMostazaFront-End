@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, HostListener } from '@angular/core';
+import { Component, HostListener, inject } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-floating-home-button',
@@ -9,6 +10,7 @@ import { Component, HostListener } from '@angular/core';
   styleUrl: './floating-home-button.component.css',
 })
 export class FloatingHomeButtonComponent {
+  private router = inject(Router);
   isVisible = false;
 
   @HostListener('window:scroll')
@@ -27,9 +29,6 @@ export class FloatingHomeButtonComponent {
       return;
     }
 
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth',
-    });
+    void this.router.navigate(['/'], { fragment: 'home' });
   }
 }

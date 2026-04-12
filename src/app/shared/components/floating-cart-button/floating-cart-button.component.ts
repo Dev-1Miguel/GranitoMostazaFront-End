@@ -22,7 +22,7 @@ export class FloatingCartButtonComponent {
 
   get isVisible(): boolean {
     // Visible si hemos ahondado en la pagina y si hay items agregados al carrito
-    return this.isScrolled && this.cartService.totalItems() > 0;
+    return this.isScrolled && this.cartService.totalItems() > 0 && !this.cartService.isCartOpen();
   }
 
   openCart(): void {

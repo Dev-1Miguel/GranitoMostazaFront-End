@@ -1,0 +1,25 @@
+<section class="insights-grid">
+  <article class="insights-card insights-card--wide">
+    <p class="insights-card__eyebrow">Referencias del panel</p>
+    <h2>Productos ejemplo para navegar mejor entre modulos.</h2>
+
+    <div class="insights-list">
+      <div class="insights-list__item" *ngFor="let insight of insights">
+        <div>
+          <h3>{{ insight.name }}</h3>
+          <p>{{ insight.note }}</p>
+        </div>
+        <strong>{{ insight.metric }}</strong>
+      </div>
+    </div>
+  </article>
+
+  <article class="insights-card">
+    <p class="insights-card__eyebrow">Siguiente paso</p>
+    <h2>Entra al modulo que necesites resolver ahora.</h2>
+    <p class="insights-card__body">
+      Si hay trabajo operativo ve a pedidos, si toca ajustar el catalogo entra a productos, y si quieres leer la jornada abre reportes.
+    </p>
+    <a routerLink="/admin/reportes" class="insights-card__link">Ir a reportes</a>
+  </article>
+</section>

@@ -7,6 +7,34 @@ export const routes: Routes = [
         component: HomeLandingComponent
     },
     {
+        path: 'admin',
+        loadComponent: () =>
+            import('./features/admin/pages/admin-landing/admin-landing.component').then(
+                (m) => m.AdminLandingComponent
+            )
+    },
+    {
+        path: 'admin/pedidos',
+        loadComponent: () =>
+            import('./features/admin/pages/orders-landing/orders-landing.component').then(
+                (m) => m.OrdersLandingComponent
+            )
+    },
+    {
+        path: 'admin/productos',
+        loadComponent: () =>
+            import('./features/admin/pages/products-landing/products-landing.component').then(
+                (m) => m.ProductsLandingComponent
+            )
+    },
+    {
+        path: 'admin/reportes',
+        loadComponent: () =>
+            import('./features/admin/pages/reports-landing/reports-landing.component').then(
+                (m) => m.ReportsLandingComponent
+            )
+    },
+    {
         path: 'menu',
         loadComponent: () =>
             import('./features/menu/pages/menu-landing/menu-landing.component').then(

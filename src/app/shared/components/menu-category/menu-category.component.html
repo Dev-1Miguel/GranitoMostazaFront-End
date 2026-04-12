@@ -1,4 +1,4 @@
-<div>
+﻿<div>
   <div class="mb-8 flex flex-col items-center gap-2">
     <h3
       class="text-center text-[#6d3b47] text-[2.9rem] leading-[1.15] md:text-[4rem]"
@@ -93,7 +93,6 @@
             (click)="incrementQuantity(item)"
             class="menu-action-button group mt-auto flex w-full items-center justify-between overflow-hidden rounded-full bg-[#6d3b47] p-1 text-sm font-medium text-white transition-all duration-300 shadow-md"
           >
-            <!-- Menos (o placeholder para centrado) -->
             <div class="flex h-10 w-10 items-center justify-center">
               <span 
                 *ngIf="quantity > 0"
@@ -106,15 +105,13 @@
               </span>
             </div>
 
-            <!-- Texto Centro -->
             <span class="flex-1 text-center py-2 text-[0.95rem] font-semibold">
-              Agregar 
-              <span *ngIf="quantity > 0" class="ml-1 font-bold">
+              <ng-container *ngIf="quantity === 0">Comprar</ng-container>
+              <span *ngIf="quantity > 0" class="font-bold">
                 {{ quantity }}
               </span>
             </span>
 
-            <!-- Más -->
             <div class="flex h-10 w-10 items-center justify-center">
               <span 
                 class="menu-action-plus flex h-full w-full items-center justify-center rounded-full bg-white/10 transition-colors"
