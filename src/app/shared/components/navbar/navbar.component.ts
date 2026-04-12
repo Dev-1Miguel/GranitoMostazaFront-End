@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { RouterModule } from "@angular/router";
 import { CartService } from "../../../features/cart/services/cart.service";
+import { AuthService } from "../../../features/auth/services/auth.service";
 
 @Component({
     selector: 'app-navbar',
@@ -13,7 +14,10 @@ import { CartService } from "../../../features/cart/services/cart.service";
 })
 export class NavbarComponent {
     private cartService = inject(CartService);
+    private authService = inject(AuthService);
     cartCount = this.cartService.totalItems;
+    isLoggedIn = this.authService.isLoggedIn;
+    userInitials = this.authService.userInitials;
     isMenuOpen = false;
 
     toggleCart(): void {

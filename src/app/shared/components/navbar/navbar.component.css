@@ -108,6 +108,20 @@
   line-height: 1;
 }
 
+.user-avatar {
+  background: var(--color-wine, #8B2323);
+  color: white;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
 .navbar__toggle {
   display: none;
   align-items: center;

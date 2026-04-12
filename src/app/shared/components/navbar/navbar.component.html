@@ -1,4 +1,4 @@
-﻿<header class="navbar">
+<header class="navbar">
   <nav class="navbar__inner">
     <a
       [routerLink]="['/']"
@@ -29,8 +29,13 @@
       </button>
 
       <a routerLink="/login-landing" class="navbar__cart" style="text-decoration: none; cursor: pointer;">
-        <i class="pi pi-user navbar__cart-icon" aria-hidden="true"></i>
-        <span>Iniciar sesión</span>
+        <ng-container *ngIf="!isLoggedIn()">
+          <i class="pi pi-user navbar__cart-icon" aria-hidden="true"></i>
+          <span>Iniciar sesión</span>
+        </ng-container>
+        <ng-container *ngIf="isLoggedIn()">
+          <div class="user-avatar">{{ userInitials() }}</div>
+        </ng-container>
       </a>
 
       <button (click)="toggleMenu()" class="navbar__toggle" type="button" [attr.aria-expanded]="isMenuOpen">

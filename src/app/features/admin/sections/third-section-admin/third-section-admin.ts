@@ -4,6 +4,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { MenuDataService } from '../../../menu/menu-data.service';
 import { Product } from '../../../../shared/models/product.interfaces';
+import { OrdersApiService } from '../../services/orders-api.service';
 
 interface OrderItem {
   customer: string;
@@ -28,6 +29,7 @@ interface CategorySummary {
 })
 export class ThirdSectionAdminComponent implements OnInit {
   private readonly menuDataService = inject(MenuDataService);
+  private readonly ordersApiService = inject(OrdersApiService);
   private readonly destroyRef = inject(DestroyRef);
 
   orders: OrderItem[] = [];
@@ -38,7 +40,6 @@ export class ThirdSectionAdminComponent implements OnInit {
       .getMenuData()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((data) => {
-        this.orders = this.buildOrders(data.postres, data.desayunos, data.bebidas);
         this.categorySummary = [
           {
             category: 'Pedidos',
@@ -60,36 +61,21 @@ export class ThirdSectionAdminComponent implements OnInit {
           }
         ];
       });
-  }
 
-  private buildOrders(postres: Product[], desayunos: Product[], bebidas: Product[]): OrderItem[] {
-    return [
-      {
-        customer: 'Pedido web #381',
-        items: `${this.getFirstProductName(desayunos)} + ${this.getFirstProductName(bebidas)}`,
-        status: 'Listo para entregar',
-        eta: '2 min'
-      },
-      {
-        customer: 'Mesa 04',
-        items: `${this.getProductName(bebidas, 1)} + ${this.getProductName(postres, 8)}`,
-        status: 'En preparacion',
-        eta: '6 min'
-      },
-      {
-        customer: 'Pedido web #382',
-        items: `${this.getProductName(postres, 4)} + ${this.getProductName(bebidas, 0)}`,
-        status: 'Pendiente',
-        eta: '9 min'
-      }
-    ];
+    this.ordersApiService
+      .getOrders()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((orders) => {
+        this.orders = orders.slice(0, 3).map((order) => ({
+          customer: `${order.id} · ${order.customer}`,
+          items: order.summary,
+          status: order.status,
+          eta: order.time
+        }));
+      });
   }
 
   private getFirstProductName(products: Product[]): string {
     return products[0]?.name ?? 'Producto del menu';
-  }
-
-  private getProductName(products: Product[], index: number): string {
-    return products[index]?.name ?? this.getFirstProductName(products);
   }
 }

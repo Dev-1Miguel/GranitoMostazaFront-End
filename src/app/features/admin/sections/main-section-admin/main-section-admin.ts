@@ -4,6 +4,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { MenuDataService } from '../../../menu/menu-data.service';
 import { Product } from '../../../../shared/models/product.interfaces';
+import { OrdersApiService } from '../../services/orders-api.service';
 
 interface AdminStat {
   label: string;
@@ -20,9 +21,12 @@ interface AdminStat {
 })
 export class MainSectionAdminComponent implements OnInit {
   private readonly menuDataService = inject(MenuDataService);
+  private readonly ordersApiService = inject(OrdersApiService);
   private readonly destroyRef = inject(DestroyRef);
 
   stats: AdminStat[] = [];
+  private catalogStats: AdminStat[] = [];
+  private orderStats: AdminStat[] = [];
 
   ngOnInit(): void {
     this.menuDataService
@@ -35,12 +39,20 @@ export class MainSectionAdminComponent implements OnInit {
         const allProducts = [...data.postres, ...data.desayunos, ...data.bebidas];
         const averagePrice = this.calculateAveragePrice(allProducts);
 
-        this.stats = [
+        this.catalogStats = [
           { label: 'Modulos activos', value: '3', trend: 'Pedidos, productos y reportes disponibles' },
           { label: 'Productos en menu', value: `${allProducts.length}`, trend: `${postres} postres, ${desayunos} desayunos, ${bebidas} bebidas` },
-          { label: 'Pedidos visibles', value: '5', trend: 'Base operativa inicial del modulo de pedidos' },
-          { label: 'Ticket promedio', value: `$${averagePrice.toFixed(2)}`, trend: 'Referencia rapida para revisar precios del catalogo' }
+          { label: 'Ticket promedio catalogo', value: `$${averagePrice.toFixed(2)}`, trend: 'Referencia rapida para revisar precios del catalogo' }
         ];
+        this.syncStats();
+      });
+
+    this.ordersApiService
+      .getOrders()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((orders) => {
+        this.orderStats = this.ordersApiService.buildDashboardStats(orders);
+        this.syncStats();
       });
   }
 
@@ -51,5 +63,9 @@ export class MainSectionAdminComponent implements OnInit {
 
     const total = products.reduce((sum, product) => sum + product.price, 0);
     return total / products.length;
+  }
+
+  private syncStats(): void {
+    this.stats = [...this.catalogStats.slice(0, 2), ...this.orderStats.slice(0, 2)];
   }
 }
